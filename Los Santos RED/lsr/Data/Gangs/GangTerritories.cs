@@ -13,6 +13,7 @@ public class GangTerritories : IGangTerritories
     private IGangs GangProvider;
     private readonly string GangTurfConfigFileName = "Plugins\\LosSantosRED\\GangTerritories.xml";
     private List<GangTerritory> GangTerritoriesList = new List<GangTerritory>();
+    public TerritoryCaptureManager CaptureManager { get; set; }
     public GangTerritories(IGangs gangProvider)
     {
         GangProvider = gangProvider;
@@ -62,6 +63,14 @@ public class GangTerritories : IGangTerritories
     }
     public Gang GetMainGang(string ZoneName)
     {
+        if (CaptureManager != null)
+        {
+            Gang dynamicOwner = CaptureManager.GetDynamicOwner(ZoneName);
+            if (dynamicOwner != null)
+            {
+                return dynamicOwner;
+            }
+        }
         if (GangTerritoriesList.Any())
         {
             foreach (GangTerritory gt in GangTerritoriesList.Where(x => x.ZoneInternalGameName.ToLower() == ZoneName.ToLower()).OrderBy(x => x.Priority))

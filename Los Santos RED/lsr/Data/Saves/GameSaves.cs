@@ -10,6 +10,7 @@ public class GameSaves : IGameSaves
 {
     private string ConfigFileName = "Plugins\\LosSantosRED\\SaveGames.xml";
     private GameSave PlayingSave;
+    public TerritoryCaptureManager CaptureManager { get; set; }
     public GameSaves()
     {
     }
@@ -43,6 +44,10 @@ public class GameSaves : IGameSaves
         //EntryPoint.WriteToConsoleTestLong($"NEW SAVE GAME save number {saveNumber}");
         GameSave mySave = new GameSave();
         mySave.SaveNumber = saveNumber;
+        if (CaptureManager != null)
+        {
+            mySave.TerritoryCaptureSaves = CaptureManager.GetSaveData();
+        }
         GameSaveList.Add(mySave);
         mySave.Save(player, weapons, time, placesOfInterest, modItems);
         Serialization.SerializeParams(GameSaveList, ConfigFileName);
@@ -52,6 +57,10 @@ public class GameSaves : IGameSaves
         IModItems modItems, IAgencies agencies, IContacts contacts, IInteractionable interactionable, IShopMenus shopMenus)
     {
         gameSave.Load(weapons, pedSwap, player, settings, world, gangs, agencies, time, placesOfInterest, modItems, contacts, interactionable, shopMenus);
+        if (CaptureManager != null && gameSave.TerritoryCaptureSaves != null)
+        {
+            CaptureManager.LoadSaveData(gameSave.TerritoryCaptureSaves);
+        }
         PlayingSave = gameSave;
     }
     public void DeleteSave(GameSave toDelete)

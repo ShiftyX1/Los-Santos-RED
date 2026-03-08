@@ -45,6 +45,7 @@ namespace Roulette
         }
         public void Spin()
         {
+            // TODO: I think we should add a Debug feature that allows you to change win percentages for testing purposes, and.... for fun :D
             SelectedPocket = PocketsList.PickRandom();
         }
 

@@ -31,6 +31,7 @@ public class GangTasks : IPlayerTaskGroup
     private IWeapons Weapons;
     private IPedGroups PedGroups;
     private IAgencies Agencies;
+    private TerritoryCaptureManager CaptureManager;
 
     private List<RivalGangAmbushTask> RivalGangAmbush = new List<RivalGangAmbushTask>();
     private List<RivalGangHitTask> RivalGangHits = new List<RivalGangHitTask>();
@@ -45,11 +46,12 @@ public class GangTasks : IPlayerTaskGroup
     private List<GangPizzaDeliveryTask> GangPizzaDeliveryTasks = new List<GangPizzaDeliveryTask>();
     private List<GangProveWorthTask> GangProveWorthTasks = new List<GangProveWorthTask>();
     private List<GangGetCarOutOfImpoundTask> GangGetCarOutOfImpoundTasks = new List<GangGetCarOutOfImpoundTask>();
-
+    private List<GangTurfCaptureTask> GangTurfCaptureTasks = new List<GangTurfCaptureTask>();
+    private TerritoryDefenseEvent DefenseEvent;
 
     private List<GangTask> AllGenericGangTasks = new List<GangTask>();
 
-    public GangTasks(ITaskAssignable player, ITimeControllable time, IGangs gangs, PlayerTasks playerTasks, IPlacesOfInterest placesOfInterest, List<DeadDrop> activeDrops, ISettingsProvideable settings, IEntityProvideable world, ICrimes crimes, IModItems modItems, IShopMenus shopMenus, IWeapons weapons, INameProvideable names, IPedGroups pedGroups, IAgencies agencies, IGangTerritories gangTerritories, IZones zones)
+    public GangTasks(ITaskAssignable player, ITimeControllable time, IGangs gangs, PlayerTasks playerTasks, IPlacesOfInterest placesOfInterest, List<DeadDrop> activeDrops, ISettingsProvideable settings, IEntityProvideable world, ICrimes crimes, IModItems modItems, IShopMenus shopMenus, IWeapons weapons, INameProvideable names, IPedGroups pedGroups, IAgencies agencies, IGangTerritories gangTerritories, IZones zones, TerritoryCaptureManager captureManager)
     {
         Player = player;
         Time = time;
@@ -69,10 +71,19 @@ public class GangTasks : IPlayerTaskGroup
         Agencies = agencies;
         GangTerritories = gangTerritories;
         Zones = zones;
+        CaptureManager = captureManager;
+        if (CaptureManager != null)
+        {
+            DefenseEvent = new TerritoryDefenseEvent(Player, Time, Gangs, Zones, Settings, World, CaptureManager);
+        }
     }
     public void Setup()
     {
 
+    }
+    public void UpdateDefenseEvents()
+    {
+        DefenseEvent?.Update();
     }
     public void Dispose()
     {
@@ -89,6 +100,7 @@ public class GangTasks : IPlayerTaskGroup
         GangPizzaDeliveryTasks.ForEach(x => x.Dispose());
         GangProveWorthTasks.ForEach(x => x.Dispose());
         GangGetCarOutOfImpoundTasks.ForEach(x => x.Dispose());
+        GangTurfCaptureTasks.ForEach(x => x.Dispose());
 
 
         AllGenericGangTasks.ForEach(x => x.Dispose());
@@ -106,6 +118,7 @@ public class GangTasks : IPlayerTaskGroup
         GangPizzaDeliveryTasks.Clear();
         GangProveWorthTasks.Clear();
         GangGetCarOutOfImpoundTasks.Clear();
+        GangTurfCaptureTasks.Clear();
 
         AllGenericGangTasks.Clear();
     }
@@ -210,6 +223,35 @@ public class GangTasks : IPlayerTaskGroup
         GangPizzaDeliveryTasks.Add(newDelivery);
         newDelivery.Setup();
         newDelivery.Start(gang);
+    }
+
+    public void StartTurfCapture(Gang gang, GangContact gangContact, Gang defendingGang, Zone targetZone)
+    {
+        GangTurfCaptureTask newTask = new GangTurfCaptureTask(Player, Time, Gangs, PlayerTasks, PlacesOfInterest, Settings, World, Crimes, gangContact, this, defendingGang, GangTerritories, Zones, targetZone, CaptureManager);
+        GangTurfCaptureTasks.Add(newTask);
+        newTask.Setup();
+        newTask.Start(gang);
+    }
+
+    public bool CanStartTurfCapture(string gangID, string zoneInternalGameName)
+    {
+        if (CaptureManager == null) return false;
+        return CaptureManager.IsCapturableBy(zoneInternalGameName, gangID);
+    }
+
+    public Gang GetZoneMainGang(string zoneInternalGameName)
+    {
+        return GangTerritories?.GetMainGang(zoneInternalGameName);
+    }
+
+    public Zone GetZone(string zoneInternalGameName)
+    {
+        return Zones?.GetZone(zoneInternalGameName);
+    }
+
+    public int GetTurfCaptureCost(string zoneInternalGameName)
+    {
+        return GangTurfCaptureTask.GetCaptureCostForZone(Zones?.GetZone(zoneInternalGameName), Settings.SettingsManager.GangSettings.TurfCaptureCostMultiplier);
     }
 
 

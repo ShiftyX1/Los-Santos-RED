@@ -290,6 +290,8 @@
     <Compile Include="lsr\Player\ActiveTasks\Gang\GangArsonTask.cs" />
     <Compile Include="lsr\Player\ActiveTasks\Gang\GangRacketeeringTask.cs" />
     <Compile Include="lsr\Player\ActiveTasks\Gang\RivalGangAmbushTask.cs" />
+    <Compile Include="lsr\Player\ActiveTasks\Gang\GangTurfCaptureTask.cs" />
+    <Compile Include="lsr\Player\ActiveTasks\Gang\TerritoryDefenseEvent.cs" />
     <Compile Include="lsr\Player\ActiveTasks\Gang\GangBriberyTask.cs" />
     <Compile Include="lsr\Player\ActiveTasks\Gang\Generic\DrugMeetTask.cs" />
     <Compile Include="lsr\Player\ActiveTasks\Generic Contact\PayoffContactTask.cs" />
@@ -372,6 +374,8 @@
     <Compile Include="lsr\Data\Gangs\GangRelationship.cs" />
     <Compile Include="lsr\Data\Gangs\Gangs.cs" />
     <Compile Include="lsr\Data\Gangs\GangTerritories.cs" />
+    <Compile Include="lsr\Data\Gangs\TerritoryCapture.cs" />
+    <Compile Include="lsr\Data\Gangs\TerritoryCaptureManager.cs" />
     <Compile Include="lsr\Data\Interface\IOrganizations.cs" />
     <Compile Include="lsr\Data\Interface\IClothesNames.cs" />
     <Compile Include="lsr\Data\Interface\ILocationTypes.cs" />
@@ -725,6 +729,7 @@
     <Compile Include="lsr\Data\Peds\Speeches.cs" />
     <Compile Include="lsr\Data\Saves\GangKickSave.cs" />
     <Compile Include="lsr\Data\Saves\GangRepSave.cs" />
+    <Compile Include="lsr\Data\Saves\TerritoryCaptureSave.cs" />
     <Compile Include="lsr\Data\Saves\InventorySave.cs" />
     <Compile Include="lsr\Data\Saves\SavedContact.cs" />
     <Compile Include="lsr\Data\Saves\SavedResidence.cs" />

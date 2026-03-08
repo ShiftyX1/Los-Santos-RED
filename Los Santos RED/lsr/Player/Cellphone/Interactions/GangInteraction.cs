@@ -284,7 +284,10 @@ public class GangInteraction : IContactMenuInteraction
             JobsSubMenu.AddItem(GangPizza);
         }
 
-
+        if (ActiveGangReputation.IsMember)
+        {
+            AddTurfCaptureItem();
+        }
 
 
 
@@ -297,6 +300,27 @@ public class GangInteraction : IContactMenuInteraction
         AddDrugBuySubMenu();
 
 
+    }
+    private void AddTurfCaptureItem()
+    {
+        string currentZoneName = Player.CurrentLocation?.CurrentZone?.InternalGameName;
+        if (string.IsNullOrEmpty(currentZoneName)) return;
+        if (!Player.PlayerTasks.GangTasks.CanStartTurfCapture(ActiveGang.ID, currentZoneName)) return;
+        Gang defendingGang = Player.PlayerTasks.GangTasks.GetZoneMainGang(currentZoneName);
+        if (defendingGang == null || defendingGang.ID == ActiveGang.ID) return;
+        int cost = Player.PlayerTasks.GangTasks.GetTurfCaptureCost(currentZoneName);
+        Zone targetZone = Player.PlayerTasks.GangTasks.GetZone(currentZoneName);
+        if (targetZone == null) return;
+        UIMenuItem captureItem = new UIMenuItem("Capture Territory", $"Take over ~r~{defendingGang.ShortName}~s~ territory in ~y~{targetZone.DisplayName}~s~. You must eliminate waves of defenders and hold the area.") 
+        { 
+            RightLabel = $"~r~{cost:C0}~s~" 
+        };
+        captureItem.Activated += (sender, selectedItem) =>
+        {
+            Player.PlayerTasks.GangTasks.StartTurfCapture(ActiveGang, GangContact, defendingGang, targetZone);
+            sender.Visible = false;
+        };
+        JobsSubMenu.AddItem(captureItem);
     }
     private void AddDrugMeetSubMenu()
     {

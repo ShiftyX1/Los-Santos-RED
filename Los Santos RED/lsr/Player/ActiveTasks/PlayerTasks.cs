@@ -46,7 +46,7 @@ public class PlayerTasks
         Weapons = weapons;
         ShopMenus = shopMenus;
         PedGroups = pedGroups;
-        GangTasks = new GangTasks(Player,Time,Gangs,this,PlacesOfInterest, ActiveDrops, Settings,World,Crimes, modItems, ShopMenus, Weapons,Names,PedGroups, agencies, gangTerritories, zones);
+        GangTasks = new GangTasks(Player,Time,Gangs,this,PlacesOfInterest, ActiveDrops, Settings,World,Crimes, modItems, ShopMenus, Weapons,Names,PedGroups, agencies, gangTerritories, zones, gangTerritories.CaptureManager);
         CorruptCopTasks = new CorruptCopTasks(Player, Time, Gangs, this, PlacesOfInterest, ActiveDrops, Settings, World, Crimes, Names, Weapons, ShopMenus);
         UndergroundGunsTasks = new UndergroundGunsTasks(Player, Time, Gangs, this, PlacesOfInterest, ActiveDrops, Settings, World, Crimes);
         VehicleExporterTasks = new VehicleExporterTasks(Player, Time, Gangs, this, PlacesOfInterest, ActiveDrops, Settings, World, Crimes, modItems);
@@ -80,6 +80,7 @@ public class PlayerTasks
                 SendExpiringSoonMessage(pt);
             }
         }
+        GangTasks.UpdateDefenseEvents();
     }
     public void Reset()
     {

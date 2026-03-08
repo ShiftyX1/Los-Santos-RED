@@ -59,6 +59,9 @@ namespace LosSantosRED.lsr
 
             ModDataFileManager = new ModDataFileManager();
             ModDataFileManager.Setup();
+            TerritoryCaptureManager captureManager = new TerritoryCaptureManager(ModDataFileManager.Gangs, ModDataFileManager.Settings);
+            ModDataFileManager.GangTerritories.CaptureManager = captureManager;
+            ModDataFileManager.GameSaves.CaptureManager = captureManager;
             GameFiber.Yield();
 
             NAudioPlayer = new NAudioPlayer(ModDataFileManager.Settings);

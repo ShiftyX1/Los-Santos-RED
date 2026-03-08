@@ -173,6 +173,34 @@ public class GangSettings : ISettingsDefaultable
     public bool AllowFlyThroughWindshield { get; set; }
     public float FlyThroughWindshieldPercent { get; set; }
 
+    // Turf Capture Settings
+    [Description("Enable or disable the territory capture system.")]
+    public bool AllowTurfCapture { get; set; }
+    [Description("Number of waves of enemies during territory capture.")]
+    public int TurfCaptureWaveCount { get; set; }
+    [Description("Base number of enemies in the first wave.")]
+    public int TurfCaptureWaveBaseEnemyCount { get; set; }
+    [Description("Additional enemies per subsequent wave.")]
+    public int TurfCaptureWaveEnemyIncrement { get; set; }
+    [Description("Time in seconds the player must hold the territory after clearing waves.")]
+    public int TurfCaptureHoldTimeSeconds { get; set; }
+    [Description("Cost multiplier for initiating a territory capture.")]
+    public float TurfCaptureCostMultiplier { get; set; }
+    [Description("Income multiplier for captured territories.")]
+    public float TurfCaptureIncomeMultiplier { get; set; }
+    [Description("Maximum number of territories a gang can hold.")]
+    public int MaxCapturedTerritories { get; set; }
+    [Description("Minimum minutes between defense checks on captured territories.")]
+    public int TurfDefenseCheckIntervalMinutesMin { get; set; }
+    [Description("Maximum minutes between defense checks on captured territories.")]
+    public int TurfDefenseCheckIntervalMinutesMax { get; set; }
+    [Description("Chance (0.0-1.0) that a defense check results in an attack.")]
+    public float TurfDefenseAttackChance { get; set; }
+    [Description("Chance (0.0-1.0) that NPC allies auto-win defense when player is absent.")]
+    public float TurfDefenseAutoWinChance { get; set; }
+    [Description("Interval in game minutes between territory income collections.")]
+    public int TurfIncomeIntervalMinutes { get; set; }
+
     public GangSettings()
     {
         SetDefault();
@@ -322,6 +350,20 @@ public class GangSettings : ISettingsDefaultable
         // RemoveNonSpawnedGangMembersOnFoot_Extra = false;
         AllowFlyThroughWindshield = true;
 
+        // Turf Capture Defaults
+        AllowTurfCapture = true;
+        TurfCaptureWaveCount = 3;
+        TurfCaptureWaveBaseEnemyCount = 4;
+        TurfCaptureWaveEnemyIncrement = 2;
+        TurfCaptureHoldTimeSeconds = 180;
+        TurfCaptureCostMultiplier = 1.0f;
+        TurfCaptureIncomeMultiplier = 1.0f;
+        MaxCapturedTerritories = 10;
+        TurfDefenseCheckIntervalMinutesMin = 30;
+        TurfDefenseCheckIntervalMinutesMax = 90;
+        TurfDefenseAttackChance = 0.4f;
+        TurfDefenseAutoWinChance = 0.5f;
+        TurfIncomeIntervalMinutes = 60;
 
     }
 
