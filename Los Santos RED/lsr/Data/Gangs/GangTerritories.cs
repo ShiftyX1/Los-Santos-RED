@@ -14,6 +14,7 @@ public class GangTerritories : IGangTerritories
     private readonly string GangTurfConfigFileName = "Plugins\\LosSantosRED\\GangTerritories.xml";
     private List<GangTerritory> GangTerritoriesList = new List<GangTerritory>();
     public TerritoryCaptureManager CaptureManager { get; set; }
+    public List<GangTerritory> AllTerritories => GangTerritoriesList;
     public GangTerritories(IGangs gangProvider)
     {
         GangProvider = gangProvider;

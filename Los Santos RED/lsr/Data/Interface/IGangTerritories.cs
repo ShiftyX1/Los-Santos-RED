@@ -10,6 +10,7 @@ namespace LosSantosRED.lsr.Interface
     public interface IGangTerritories
     {
         TerritoryCaptureManager CaptureManager { get; set; }
+        List<GangTerritory> AllTerritories { get; }
         Gang GetRandomGang(string internalGameName, int wantedLevel);
         List<Gang> GetGangs(string internalGameName, int wantedLevel);
         Gang GetMainGang(string internalGameName);

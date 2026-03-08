@@ -34,6 +34,7 @@ namespace LosSantosRED.lsr
         private Mod.Crafting Crafting;
         public ModDataFileManager ModDataFileManager { get; private set; }
         private WeatherManager WeatherManager;
+        private TerritoryBlipManager TerritoryBlipManager;
 
         public ModController()
         {
@@ -62,6 +63,7 @@ namespace LosSantosRED.lsr
             TerritoryCaptureManager captureManager = new TerritoryCaptureManager(ModDataFileManager.Gangs, ModDataFileManager.Settings);
             ModDataFileManager.GangTerritories.CaptureManager = captureManager;
             ModDataFileManager.GameSaves.CaptureManager = captureManager;
+            TerritoryBlipManager = new TerritoryBlipManager(ModDataFileManager.GangTerritories, ModDataFileManager.Gangs, ModDataFileManager.Zones);
             GameFiber.Yield();
 
             NAudioPlayer = new NAudioPlayer(ModDataFileManager.Settings);
@@ -129,6 +131,8 @@ namespace LosSantosRED.lsr
             GameFiber.Yield();
             PedSwap.Setup();
             GameFiber.Yield();
+            TerritoryBlipManager.Setup();
+            GameFiber.Yield();
 
             SetTaskGroups();
             GameFiber.Yield();
@@ -178,6 +182,7 @@ namespace LosSantosRED.lsr
             Weather.Dispose();
             Debug.Dispose();
             WeatherManager.Dispose();
+            TerritoryBlipManager.Dispose();
 
 
 
@@ -264,6 +269,7 @@ namespace LosSantosRED.lsr
                     new ModTask(5000, "Player.Properties.Update", Player.Properties.Update, 5),//might become a priority...
 
                     new ModTask(1000, "World.Update", World.Update, 6),///????MAYBE BAD?
+                    new ModTask(5000, "TerritoryBlips.Update", TerritoryBlipManager.Update, 7),
                 }),
                 new ModTaskGroup("RG11:TaskerUpdate", new List<ModTask>()
                 {
