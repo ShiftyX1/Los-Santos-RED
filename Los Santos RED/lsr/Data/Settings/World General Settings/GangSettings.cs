@@ -200,6 +200,14 @@ public class GangSettings : ISettingsDefaultable
     public float TurfDefenseAutoWinChance { get; set; }
     [Description("Interval in game minutes between territory income collections.")]
     public int TurfIncomeIntervalMinutes { get; set; }
+    [Description("Suppress police wanted level and crime detection during territory capture.")]
+    public bool TurfCaptureSuppressPolice { get; set; }
+    [Description("Chance (0.0-1.0) that police respond after a successful territory capture.")]
+    public float TurfCapturePoliceAfterChance { get; set; }
+    [Description("Wanted level applied if police respond after territory capture.")]
+    public int TurfCapturePoliceAfterWantedLevel { get; set; }
+    [Description("Override for max spawned gang members during territory capture.")]
+    public int TurfCaptureSpawnLimitOverride { get; set; }
 
     public GangSettings()
     {
@@ -353,8 +361,8 @@ public class GangSettings : ISettingsDefaultable
         // Turf Capture Defaults
         AllowTurfCapture = true;
         TurfCaptureWaveCount = 3;
-        TurfCaptureWaveBaseEnemyCount = 4;
-        TurfCaptureWaveEnemyIncrement = 2;
+        TurfCaptureWaveBaseEnemyCount = 10;
+        TurfCaptureWaveEnemyIncrement = 4;
         TurfCaptureHoldTimeSeconds = 180;
         TurfCaptureCostMultiplier = 1.0f;
         TurfCaptureIncomeMultiplier = 1.0f;
@@ -364,6 +372,10 @@ public class GangSettings : ISettingsDefaultable
         TurfDefenseAttackChance = 0.4f;
         TurfDefenseAutoWinChance = 0.5f;
         TurfIncomeIntervalMinutes = 60;
+        TurfCaptureSuppressPolice = true;
+        TurfCapturePoliceAfterChance = 0.5f;
+        TurfCapturePoliceAfterWantedLevel = 2;
+        TurfCaptureSpawnLimitOverride = 32;
 
     }
 

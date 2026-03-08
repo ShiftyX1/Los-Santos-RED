@@ -55,6 +55,11 @@ namespace LosSantosRED.lsr.Player.ActiveTasks
         private float HudProgress;
         private Color HudProgressColor = Color.Green;
 
+        // Police suppression & spawn limit override
+        private int OriginalSpawnLimit;
+        private bool IsPoliceSuppressed;
+        private uint GameTimeLastSuppressed;
+
         public GangTurfCaptureTask(ITaskAssignable player, ITimeReportable time, IGangs gangs, PlayerTasks playerTasks,
             IPlacesOfInterest placesOfInterest, ISettingsProvideable settings, IEntityProvideable world, ICrimes crimes,
             PhoneContact phoneContact, GangTasks gangTasks, Gang defendingGang, IGangTerritories gangTerritories,
@@ -145,6 +150,13 @@ namespace LosSantosRED.lsr.Player.ActiveTasks
         {
             GameFiber.Sleep(2000);
 
+            // Override spawn limit for turf war
+            OriginalSpawnLimit = Settings.SettingsManager.GangSettings.TotalSpawnedMembersLimit;
+            Settings.SettingsManager.GangSettings.TotalSpawnedMembersLimit = Settings.SettingsManager.GangSettings.TurfCaptureSpawnLimitOverride;
+
+            // Suppress police at start
+            SuppressPolice();
+
             // Phase A: Wave-based combat
             CurrentWave = 0;
             while (CurrentWave < TotalWaves)
@@ -210,6 +222,9 @@ namespace LosSantosRED.lsr.Player.ActiveTasks
                         break;
                     }
 
+                    // Keep police suppressed during combat
+                    PeriodicSuppressPolice();
+
                     // Spawn reinforcements if wave is taking too long
                     if (Game.GameTime - waveStartTime > waveTimeout)
                     {
@@ -270,6 +285,9 @@ namespace LosSantosRED.lsr.Player.ActiveTasks
                     HudProgressColor = Color.Gold;
                 }
 
+                // Keep police suppressed during hold phase
+                PeriodicSuppressPolice();
+
                 uint elapsed = Game.GameTime - HoldStartGameTime;
                 uint totalMs = (uint)(HoldTimeSeconds * 1000);
                 float holdProgress = Math.Min((float)elapsed / totalMs, 1f);
@@ -291,11 +309,18 @@ namespace LosSantosRED.lsr.Player.ActiveTasks
             HudProgressColor = Color.LimeGreen;
             NativeHelper.PlaySuccessSound();
 
+            // Restore spawn limit and stop police suppression
+            RestoreSpawnLimit();
+            RestorePolice();
+
             if (CheckTaskAlive())
             {
                 int incomePerTick = TerritoryCaptureManager.GetIncomeForEconomy(TargetZone.Economy);
                 CaptureManager.CaptureZone(TargetZone.InternalGameName, DefendingGang.ID, HiringGang.ID, incomePerTick);
                 CurrentTask.OnReadyForPayment(true, "Territory ~g~" + TargetZone.DisplayName + "~s~ captured! Return to the " + HiringGang.DenName + " for payment.");
+
+                // Chance for police to respond after the turf war
+                TriggerPoliceAfterTurf();
             }
 
             GameFiber.Sleep(5000);
@@ -310,12 +335,12 @@ namespace LosSantosRED.lsr.Player.ActiveTasks
 
                 int spawned = 0;
                 int attempts = 0;
-                while (spawned < enemyCount && attempts < 6)
+                while (spawned < enemyCount && attempts < 12)
                 {
                     Player.Dispatcher.GangDispatcher.DispatchHitSquad(DefendingGang, true);
                     spawned += 3;
                     attempts++;
-                    GameFiber.Sleep(1500);
+                    GameFiber.Sleep(1000);
                 }
 
                 EntryPoint.WriteToConsole("TURF CAPTURE: Spawned wave enemies for " + DefendingGang.ShortName + ", attempts=" + attempts, 0);
@@ -432,6 +457,8 @@ namespace LosSantosRED.lsr.Player.ActiveTasks
         private void OnFailed()
         {
             IsActive = false;
+            RestoreSpawnLimit();
+            RestorePolice();
             CaptureManager.ClearInProgress(TargetZone.InternalGameName);
             RemoveBlip();
             GangTasks.SendGenericFailMessage(PhoneContact);
@@ -569,6 +596,58 @@ namespace LosSantosRED.lsr.Player.ActiveTasks
             }
             catch { }
             CaptureBlip = null;
+        }
+
+        // Police suppression
+        private void SuppressPolice()
+        {
+            if (!Settings.SettingsManager.GangSettings.TurfCaptureSuppressPolice) return;
+            IsPoliceSuppressed = true;
+            GameTimeLastSuppressed = Game.GameTime;
+            IPoliceRespondable policePlayer = Player as IPoliceRespondable;
+            if (policePlayer != null)
+            {
+                policePlayer.SetWantedLevel(0, "Turf War", true);
+            }
+            Player.PoliceResponse.Reset();
+            Player.Investigation.Reset();
+        }
+
+        private void PeriodicSuppressPolice()
+        {
+            if (!IsPoliceSuppressed) return;
+            if (Game.GameTime - GameTimeLastSuppressed < 5000) return;
+            SuppressPolice();
+        }
+
+        private void RestorePolice()
+        {
+            IsPoliceSuppressed = false;
+        }
+
+        private void TriggerPoliceAfterTurf()
+        {
+            float chance = Settings.SettingsManager.GangSettings.TurfCapturePoliceAfterChance;
+            if (chance <= 0f) return;
+            if (RandomItems.RandomPercent((int)(chance * 100)))
+            {
+                int wantedLevel = Settings.SettingsManager.GangSettings.TurfCapturePoliceAfterWantedLevel;
+                if (wantedLevel <= 0) return;
+                IPoliceRespondable policePlayer = Player as IPoliceRespondable;
+                if (policePlayer != null)
+                {
+                    policePlayer.SetWantedLevel(wantedLevel, "Turf War Aftermath", true);
+                }
+                Game.DisplayNotification("~r~Police are responding to reports of gunfire in the area!");
+            }
+        }
+
+        private void RestoreSpawnLimit()
+        {
+            if (OriginalSpawnLimit > 0)
+            {
+                Settings.SettingsManager.GangSettings.TotalSpawnedMembersLimit = OriginalSpawnLimit;
+            }
         }
 
         // Messages
