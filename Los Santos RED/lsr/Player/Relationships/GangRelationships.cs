@@ -14,9 +14,12 @@ public class GangRelationships
     private ISettingsProvideable Settings;
     private IPlacesOfInterest PlacesOfInterest;
     private ITimeReportable Time;
+    private DateTime LastIncomeCollectionGameTime;
+    private bool IncomeTimerInitialized;
     public List<GangReputation> GangReputations { get; private set; } = new List<GangReputation>();
     public Gang CurrentGang { get; private set; }
     public GangKickUp CurrentGangKickUp { get; private set; }
+    public IGangTerritories GangTerritories { get; set; }
     public List<Gang> EnemyGangs => GangReputations.Where(x => x.IsEnemy).Select(x => x.Gang).ToList();
     public List<Gang> HitSquadGangs => GangReputations.Where(x=> x.CanDispatchHitSquad).Select(x => x.Gang).ToList();
     public GangRelationships(IGangs gangs, IGangRelateable player, ISettingsProvideable settings, IPlacesOfInterest placesOfInterest, ITimeReportable time)
@@ -79,7 +82,42 @@ public class GangRelationships
             rg.GangLoan?.Update();
         }
         CurrentGangKickUp?.Update();
-        
+        UpdateTerritoryIncome();
+    }
+    private void UpdateTerritoryIncome()
+    {
+        if (GangTerritories?.CaptureManager == null || !GangTerritories.CaptureManager.HasCapturedTerritories)
+        {
+            return;
+        }
+        if (!IncomeTimerInitialized)
+        {
+            LastIncomeCollectionGameTime = Time.CurrentDateTime;
+            IncomeTimerInitialized = true;
+            return;
+        }
+        int intervalMinutes = Settings.SettingsManager.GangSettings.TurfIncomeIntervalMinutes;
+        if (intervalMinutes <= 0)
+        {
+            return;
+        }
+        double minutesElapsed = (Time.CurrentDateTime - LastIncomeCollectionGameTime).TotalMinutes;
+        if (minutesElapsed >= intervalMinutes)
+        {
+            int income = GangTerritories.CaptureManager.CollectIncome();
+            if (income > 0)
+            {
+                float multiplier = Settings.SettingsManager.GangSettings.TurfCaptureIncomeMultiplier;
+                int finalIncome = (int)(income * multiplier);
+                if (finalIncome > 0)
+                {
+                    Player.BankAccounts.GiveMoney(finalIncome, false);
+                    Game.DisplayNotification("~g~Territory Income~s~~n~$" + finalIncome.ToString("N0") + " collected from " + GangTerritories.CaptureManager.CapturedCount + " territories");
+                    EntryPoint.WriteToConsole($"TERRITORY INCOME: Collected ${finalIncome} from {GangTerritories.CaptureManager.CapturedCount} territories", 0);
+                }
+            }
+            LastIncomeCollectionGameTime = Time.CurrentDateTime;
+        }
     }
     public void ChangeReputation(Gang gang, int amount, bool sendNotification)
     {

@@ -376,6 +376,7 @@
     <Compile Include="lsr\Data\Gangs\GangTerritories.cs" />
     <Compile Include="lsr\Data\Gangs\TerritoryCapture.cs" />
     <Compile Include="lsr\Data\Gangs\TerritoryCaptureManager.cs" />
+    <Compile Include="lsr\Data\Gangs\AITurfWarManager.cs" />
     <Compile Include="lsr\Data\Gangs\TerritoryBlipManager.cs" />
     <Compile Include="lsr\Data\Interface\IOrganizations.cs" />
     <Compile Include="lsr\Data\Interface\IClothesNames.cs" />
@@ -731,6 +732,7 @@
     <Compile Include="lsr\Data\Saves\GangKickSave.cs" />
     <Compile Include="lsr\Data\Saves\GangRepSave.cs" />
     <Compile Include="lsr\Data\Saves\TerritoryCaptureSave.cs" />
+    <Compile Include="lsr\Data\Saves\AITerritoryChangeSave.cs" />
     <Compile Include="lsr\Data\Saves\InventorySave.cs" />
     <Compile Include="lsr\Data\Saves\SavedContact.cs" />
     <Compile Include="lsr\Data\Saves\SavedResidence.cs" />

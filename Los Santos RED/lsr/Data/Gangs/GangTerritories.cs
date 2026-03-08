@@ -165,6 +165,56 @@ public class GangTerritories : IGangTerritories
             return null;
         }
     }
+    private List<AITerritoryChangeSave> AITerritoryChanges = new List<AITerritoryChangeSave>();
+    public bool TransferZoneOwnership(string zoneInternalGameName, string newGangID, string originalGangID)
+    {
+        GangTerritory existing = GangTerritoriesList.FirstOrDefault(x =>
+            x.ZoneInternalGameName.Equals(zoneInternalGameName, StringComparison.OrdinalIgnoreCase) && x.Priority == 0);
+        if (existing == null)
+        {
+            return false;
+        }
+        Gang newGang = GangProvider.GetGang(newGangID);
+        if (newGang == null)
+        {
+            return false;
+        }
+        existing.GangID = newGangID;
+        existing.Setup(newGang);
+        AITerritoryChanges.RemoveAll(x => x.ZoneInternalGameName.Equals(zoneInternalGameName, StringComparison.OrdinalIgnoreCase));
+        AITerritoryChanges.Add(new AITerritoryChangeSave(zoneInternalGameName, newGangID, originalGangID));
+        EntryPoint.WriteToConsole($"AI TURF WAR: {zoneInternalGameName} transferred from {originalGangID} to {newGangID}", 0);
+        return true;
+    }
+    public List<AITerritoryChangeSave> GetAITerritoryChangeSaveData()
+    {
+        return new List<AITerritoryChangeSave>(AITerritoryChanges);
+    }
+    public void LoadAITerritoryChanges(List<AITerritoryChangeSave> saves)
+    {
+        AITerritoryChanges.Clear();
+        if (saves == null)
+        {
+            return;
+        }
+        foreach (AITerritoryChangeSave save in saves)
+        {
+            Gang newGang = GangProvider.GetGang(save.NewGangID);
+            if (newGang == null)
+            {
+                continue;
+            }
+            GangTerritory existing = GangTerritoriesList.FirstOrDefault(x =>
+                x.ZoneInternalGameName.Equals(save.ZoneInternalGameName, StringComparison.OrdinalIgnoreCase) && x.Priority == 0);
+            if (existing != null)
+            {
+                existing.GangID = save.NewGangID;
+                existing.Setup(newGang);
+                AITerritoryChanges.Add(save);
+            }
+        }
+        EntryPoint.WriteToConsole($"AI TURF WAR: Loaded {AITerritoryChanges.Count} AI territory changes", 0);
+    }
     private void DefaultConfig()
     {
         GangTerritoriesList = new List<GangTerritory>()

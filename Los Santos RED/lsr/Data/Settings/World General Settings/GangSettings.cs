@@ -209,6 +209,28 @@ public class GangSettings : ISettingsDefaultable
     [Description("Override for max spawned gang members during territory capture.")]
     public int TurfCaptureSpawnLimitOverride { get; set; }
 
+    // AI Turf War Settings
+    [Description("Enable or disable autonomous AI gang turf wars.")]
+    public bool AllowAITurfWars { get; set; }
+    [Description("Minimum game-minutes between AI turf war checks.")]
+    public int AITurfWarCheckIntervalMinutesMin { get; set; }
+    [Description("Maximum game-minutes between AI turf war checks.")]
+    public int AITurfWarCheckIntervalMinutesMax { get; set; }
+    [Description("Chance (0.0-1.0) that a check results in an AI turf war.")]
+    public float AITurfWarChance { get; set; }
+    [Description("Distance from player at which AI turf wars are resolved actively (with spawns) vs passively.")]
+    public float AITurfWarPlayerActiveDistance { get; set; }
+    [Description("Base chance (0.0-1.0) that the attacking gang wins in a passive AI turf war.")]
+    public float AITurfWarAttackerWinChance { get; set; }
+    [Description("Duration in seconds of an active AI turf war.")]
+    public int AITurfWarActiveDurationSeconds { get; set; }
+    [Description("Number of gang members to spawn per side in an active AI turf war.")]
+    public int AITurfWarActiveSpawnCount { get; set; }
+    [Description("Maximum AI turf wars that can occur per game day.")]
+    public int AITurfWarMaxPerDay { get; set; }
+    [Description("Maximum distance between zone centroids for a gang to be eligible to attack a zone.")]
+    public float AITurfWarProximityThreshold { get; set; }
+
     public GangSettings()
     {
         SetDefault();
@@ -376,6 +398,18 @@ public class GangSettings : ISettingsDefaultable
         TurfCapturePoliceAfterChance = 0.5f;
         TurfCapturePoliceAfterWantedLevel = 2;
         TurfCaptureSpawnLimitOverride = 32;
+
+        // AI Turf War Defaults
+        AllowAITurfWars = true;
+        AITurfWarCheckIntervalMinutesMin = 45;
+        AITurfWarCheckIntervalMinutesMax = 120;
+        AITurfWarChance = 0.3f;
+        AITurfWarPlayerActiveDistance = 300f;
+        AITurfWarAttackerWinChance = 0.4f;
+        AITurfWarActiveDurationSeconds = 120;
+        AITurfWarActiveSpawnCount = 6;
+        AITurfWarMaxPerDay = 3;
+        AITurfWarProximityThreshold = 500f;
 
     }
 

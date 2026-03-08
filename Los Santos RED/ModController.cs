@@ -35,6 +35,7 @@ namespace LosSantosRED.lsr
         public ModDataFileManager ModDataFileManager { get; private set; }
         private WeatherManager WeatherManager;
         private TerritoryBlipManager TerritoryBlipManager;
+        private AITurfWarManager AITurfWarManager;
 
         public ModController()
         {
@@ -63,6 +64,7 @@ namespace LosSantosRED.lsr
             TerritoryCaptureManager captureManager = new TerritoryCaptureManager(ModDataFileManager.Gangs, ModDataFileManager.Settings);
             ModDataFileManager.GangTerritories.CaptureManager = captureManager;
             ModDataFileManager.GameSaves.CaptureManager = captureManager;
+            ModDataFileManager.GameSaves.GangTerritories = ModDataFileManager.GangTerritories;
             TerritoryBlipManager = new TerritoryBlipManager(ModDataFileManager.GangTerritories, ModDataFileManager.Gangs, ModDataFileManager.Zones);
             GameFiber.Yield();
 
@@ -87,6 +89,7 @@ namespace LosSantosRED.lsr
             World.Setup(Player, Player);
             GameFiber.Yield();
             Player.Setup();
+            Player.RelationshipManager.GangRelationships.GangTerritories = ModDataFileManager.GangTerritories;
             GameFiber.Yield();
             Police = new Police(World, Player, Player, ModDataFileManager.Settings, Player, Time);
             GameFiber.Yield();
@@ -108,6 +111,7 @@ namespace LosSantosRED.lsr
             Dispatcher.Setup();
             Player.Dispatcher = Dispatcher;
             Player.Weather = Weather;
+            AITurfWarManager = new AITurfWarManager(ModDataFileManager.GangTerritories, ModDataFileManager.Gangs, ModDataFileManager.Zones, ModDataFileManager.Settings, World, Player, Time, Dispatcher.GangDispatcher);
             GameFiber.Yield();
             Crafting = new Mod.Crafting(Player, ModDataFileManager.CraftableItems, ModDataFileManager.ModItems, ModDataFileManager.Settings,ModDataFileManager.Weapons);
             Crafting.Setup();
@@ -183,6 +187,7 @@ namespace LosSantosRED.lsr
             Debug.Dispose();
             WeatherManager.Dispose();
             TerritoryBlipManager.Dispose();
+            AITurfWarManager.Dispose();
 
 
 
@@ -270,6 +275,7 @@ namespace LosSantosRED.lsr
 
                     new ModTask(1000, "World.Update", World.Update, 6),///????MAYBE BAD?
                     new ModTask(5000, "TerritoryBlips.Update", TerritoryBlipManager.Update, 7),
+                    new ModTask(5000, "AITurfWar.Update", AITurfWarManager.Update, 8),
                 }),
                 new ModTaskGroup("RG11:TaskerUpdate", new List<ModTask>()
                 {

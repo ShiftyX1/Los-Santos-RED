@@ -11,6 +11,7 @@ public class GameSaves : IGameSaves
     private string ConfigFileName = "Plugins\\LosSantosRED\\SaveGames.xml";
     private GameSave PlayingSave;
     public TerritoryCaptureManager CaptureManager { get; set; }
+    public IGangTerritories GangTerritories { get; set; }
     public GameSaves()
     {
     }
@@ -48,6 +49,10 @@ public class GameSaves : IGameSaves
         {
             mySave.TerritoryCaptureSaves = CaptureManager.GetSaveData();
         }
+        if (GangTerritories != null)
+        {
+            mySave.AITerritoryChangeSaves = GangTerritories.GetAITerritoryChangeSaveData();
+        }
         GameSaveList.Add(mySave);
         mySave.Save(player, weapons, time, placesOfInterest, modItems);
         Serialization.SerializeParams(GameSaveList, ConfigFileName);
@@ -60,6 +65,10 @@ public class GameSaves : IGameSaves
         if (CaptureManager != null && gameSave.TerritoryCaptureSaves != null)
         {
             CaptureManager.LoadSaveData(gameSave.TerritoryCaptureSaves);
+        }
+        if (GangTerritories != null && gameSave.AITerritoryChangeSaves != null)
+        {
+            GangTerritories.LoadAITerritoryChanges(gameSave.AITerritoryChangeSaves);
         }
         PlayingSave = gameSave;
     }

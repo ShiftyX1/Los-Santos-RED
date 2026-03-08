@@ -85,6 +85,7 @@ namespace LosSantosRED.lsr.Data
 
         public List<GangLoanSave> GangLoanSaves { get; set; } = new List<GangLoanSave>();
         public List<TerritoryCaptureSave> TerritoryCaptureSaves { get; set; } = new List<TerritoryCaptureSave>();
+        public List<AITerritoryChangeSave> AITerritoryChangeSaves { get; set; } = new List<AITerritoryChangeSave>();
 
 
         public List<PedClothingShopMenuItem> SavedPurchasedClothingItems { get; set; } = new List<PedClothingShopMenuItem>();
